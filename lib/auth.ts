@@ -9,7 +9,6 @@ export async function createSession(payload: any) {
     .setExpirationTime('1h')
     .sign(secret);
   
-  // FIXED: await cookies()
   (await cookies()).set('session', token, { 
     httpOnly: true, 
     secure: process.env.NODE_ENV === 'production',
@@ -19,7 +18,6 @@ export async function createSession(payload: any) {
 }
 
 export async function getSession() {
-  // FIXED: await cookies()
   const session = (await cookies()).get('session')?.value;
   if (!session) return null;
   try {
@@ -31,6 +29,5 @@ export async function getSession() {
 }
 
 export async function logout() {
-  // FIXED: await cookies()
   (await cookies()).delete('session');
 }

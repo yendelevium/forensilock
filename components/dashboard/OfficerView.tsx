@@ -7,7 +7,7 @@ import NotesList from './NotesList';
 export default function OfficerView() {
   const [state, formAction, isPending] = useActionState(submitEvidence, null);
   const [myEvidence, setMyEvidence] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'log' | 'cases'>('log'); // NEW: Tabs state
+  const [activeTab, setActiveTab] = useState<'log' | 'cases'>('log');
 
   const loadEvidence = async () => {
     const data = await getEvidence();
@@ -17,14 +17,13 @@ export default function OfficerView() {
   useEffect(() => {
     loadEvidence();
     if (state?.success) {
-       setActiveTab('cases'); // Auto-switch to list after submit
+       setActiveTab('cases');
     }
   }, [state]);
 
   return (
     <div className="max-w-4xl mx-auto">
       
-      {/* TAB NAVIGATION */}
       <div className="flex gap-4 mb-6 border-b border-white/5 pb-1">
          <button 
            onClick={() => setActiveTab('log')}
@@ -40,7 +39,6 @@ export default function OfficerView() {
          </button>
       </div>
 
-      {/* TAB 1: SUBMIT FORM */}
       {activeTab === 'log' && (
         <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-b-3xl rounded-tr-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center gap-4 mb-6">
@@ -67,7 +65,6 @@ export default function OfficerView() {
         </div>
       )}
 
-      {/* TAB 2: SCROLLABLE CASE LIST */}
       {activeTab === 'cases' && (
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
            {/* SCROLLABLE CONTAINER */}
@@ -91,7 +88,7 @@ export default function OfficerView() {
                         <NotesList 
                            evidenceId={e.id} 
                            notes={e.notes} 
-                           userRole="officer" // Read-only
+                           userRole="officer"
                            currentUser="" 
                         />
                      </div>

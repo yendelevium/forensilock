@@ -6,11 +6,8 @@ import { useState } from 'react';
 export default function IAView() {
   const [activeTab, setActiveTab] = useState<'integrity' | 'access'>('integrity');
   
-  // Integrity States
   const [integrityLogs, setIntegrityLogs] = useState<any[]>([]);
   const [scanning, setScanning] = useState(false);
-  
-  // Access Log States
   const [accessLogs, setAccessLogs] = useState<any[]>([]);
 
   const runAudit = async () => {
@@ -27,7 +24,6 @@ export default function IAView() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-center gap-6 mb-8">
         <div className="p-4 bg-red-500/10 rounded-2xl border border-red-500/20 shadow-[0_0_30px_-10px_rgba(239,68,68,0.3)]">
           <ShieldAlert className="w-10 h-10 text-red-500" />
@@ -38,7 +34,6 @@ export default function IAView() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-4 mb-6 border-b border-white/5 pb-1">
         <button 
           onClick={() => setActiveTab('integrity')}
@@ -54,7 +49,6 @@ export default function IAView() {
         </button>
       </div>
 
-      {/* TAB 1: INTEGRITY (The Detailed Hash View) */}
       {activeTab === 'integrity' && (
         <div className="bg-slate-900/40 backdrop-blur-xl rounded-b-2xl rounded-tr-2xl border border-white/5 overflow-hidden p-6 min-h-[400px]">
            <div className="flex justify-end mb-6">
@@ -91,7 +85,6 @@ export default function IAView() {
                               </div>
                            </div>
                         ) : (
-                           /* TAMPERED VIEW - THE DIFF */
                            <div className="space-y-3">
                               <div>
                                 <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest block mb-1">Expected (Stored)</span>
@@ -139,7 +132,6 @@ export default function IAView() {
         </div>
       )}
 
-      {/* TAB 2: ACCESS LOGS (Standard Table) */}
       {activeTab === 'access' && (
         <div className="bg-slate-900/40 backdrop-blur-xl rounded-b-2xl rounded-tr-2xl border border-white/5 overflow-hidden">
           <table className="w-full text-left">

@@ -7,36 +7,30 @@ import { createSession } from '@/lib/auth';
 import speakeasy from 'speakeasy';
 import { redirect } from 'next/navigation';
 
-// --- NIST COMPLIANCE UTILS ---
 const COMMON_PASSWORDS = new Set([
   'password', '123456', '12345678', '123456789', 'qwerty', '111111', 
   'admin', 'welcome', 'login', 'forensilock', 'security', 'letmein'
 ]);
 
 function validateNIST(password: string, username: string): string | null {
-  // 1. Length Requirement (NIST 800-63B: Min 8 chars)
   if (password.length < 8) {
     return "Password must be at least 8 characters long.";
   }
-  
-  // 2. Max Length (Prevent DoS on hashing)
   if (password.length > 64) {
     return "Password is too long (Max 64 characters).";
   }
 
-  // 3. Breached/Common Password Check (Blacklist)
+  // Breached/Common Password Check
   if (COMMON_PASSWORDS.has(password.toLowerCase())) {
     return "This password is too common (NIST Blacklist). Please choose a stronger one.";
   }
 
-  // 4. Context Check (Should not contain username)
   if (password.toLowerCase().includes(username.toLowerCase())) {
     return "Password cannot contain your username.";
   }
 
-  return null; // Valid
+  return null;
 }
-// -----------------------------
 
 export async function registerUser(prevState: any, formData: FormData) {
   const username = formData.get('username') as string;
@@ -45,7 +39,6 @@ export async function registerUser(prevState: any, formData: FormData) {
   
   if (!username || !password || !role) return { error: 'All fields required' };
 
-  // CHECK: Run NIST Validation
   const passwordError = validateNIST(password, username);
   if (passwordError) {
     return { error: passwordError };
@@ -54,7 +47,7 @@ export async function registerUser(prevState: any, formData: FormData) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // NIST: Use Base32 for TOTP secrets (Standard)
+    // Use Base32 for TOTP secrets (Standard)
     const secret = speakeasy.generateSecret({ 
       name: `ForensiLock (${username})` 
     });

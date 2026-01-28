@@ -19,7 +19,6 @@ export const decrypt = (text: string, ivHex: string) => {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   } catch (error) {
-    // This catches the "wrong final block length" error
     console.error("Decryption failed:", error);
     return "DECRYPTION_FAILURE: Data corrupted or key mismatch.";
   }

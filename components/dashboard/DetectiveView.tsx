@@ -4,36 +4,18 @@ import { RefreshCw, AlertOctagon, FileWarning } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import NotesList from './NotesList';
 
-// Mock current user for demo (In real app, pass this from server)
-// We assume the user logged in is 'detective1' or similar. 
-// Since we don't have the session in Client Component props easily here without a provider, 
-// for the VIVA just assume the current user is whoever wrote the note.
-// A simpler hack: Read the username from the "Welcome" header if you have one, 
-// or just allow editing based on the 'author' matching 'detective' role generically.
-// FIX: Let's assume the session is handled by the server action verification. 
-// For UI "Edit" button visibility, we will just show it for all notes for now to demonstrate, 
-// but the Server Action will reject if username doesn't match.
-
 export default function DetectiveView() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string>(''); // Store who is logged in
+  const [currentUser, setCurrentUser] = useState<string>(''); 
 
   const load = async () => {
     setLoading(true);
     await new Promise(r => setTimeout(r, 600)); 
     const rows = await getEvidence();
     setData(rows);
-    // HACK: To get current user for UI logic, we could return it from getEvidence wrapper
-    // But for now, let's hardcode or infer. 
-    // Better: Update getEvidence to return { rows, currentUser }
     setLoading(false);
   };
-
-  // We need to know who "I" am to show the Edit button.
-  // For this demo, let's just allow clicking edit, and let server reject if wrong.
-  // OR: Just hardcode 'detective_holmes' if that's your login.
-  // Let's rely on the Server Action to enforce security.
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -88,8 +70,8 @@ export default function DetectiveView() {
                         evidenceId={e.id} 
                         notes={e.notes} 
                         userRole="detective" 
-                        currentUser="detective_holmes" // Or dynamic user
-                        onUpdate={load} // <--- THIS FIXES THE INSTANT UPDATE
+                        currentUser="detective_holmes"
+                        onUpdate={load}
                     /> 
                 </div>
               </div>

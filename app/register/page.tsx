@@ -11,13 +11,11 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black flex items-center justify-center p-6 text-slate-200">
       
-      {/* Background Accent */}
       <div className="absolute w-full h-[1px] bottom-0 bg-gradient-to-r from-transparent via-cyan-900 to-transparent"></div>
 
       <div className="w-full max-w-[420px] bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden ring-1 ring-white/5">
         
         {!state?.success ? (
-          /* --- STATE 1: FORM --- */
           <div className="p-8 animate-in fade-in zoom-in-95 duration-500">
             <Link href="/" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-cyan-400 transition-colors mb-6 group">
               <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
@@ -72,7 +70,6 @@ export default function RegisterPage() {
             </form>
           </div>
         ) : (
-          /* --- STATE 2: SUCCESS --- */
           <div className="p-8 text-center animate-in slide-in-from-right duration-500 flex flex-col items-center">
             <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6 border border-emerald-500/20 shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)]">
               <CheckCircle2 className="text-emerald-400 w-10 h-10" />

@@ -6,7 +6,6 @@ import { encrypt, decrypt } from '@/lib/crypto';
 import crypto from 'crypto'; 
 import { revalidatePath } from 'next/cache';
 
-// ... (submitEvidence, getEvidence remain the same) ...
 export async function submitEvidence(prevState: any, formData: FormData) {
   const session = await getSession();
   if (!session || session.role !== 'officer') return { error: 'Unauthorized' };
@@ -60,8 +59,6 @@ export async function getEvidence() {
   return evidenceWithNotes;
 }
 
-// --- UPDATED NOTE ACTIONS WITH LOGGING ---
-
 export async function addNote(formData: FormData) {
   const session = await getSession();
   if (!session || session.role !== 'detective') return { error: 'Unauthorized' };
@@ -74,7 +71,6 @@ export async function addNote(formData: FormData) {
   db.prepare('INSERT INTO case_notes (evidence_id, author, note_enc, note_iv) VALUES (?, ?, ?, ?)')
     .run(evidenceId, session.username, enc, iv);
 
-  // LOGGING ADDED HERE
   db.prepare('INSERT INTO access_logs (user, action) VALUES (?, ?)')
     .run(session.username, `ADDED_NOTE_CASE_${evidenceId}`);
 
@@ -99,7 +95,6 @@ export async function editNote(formData: FormData) {
   db.prepare('UPDATE case_notes SET note_enc = ?, note_iv = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
     .run(enc, iv, noteId);
 
-  // LOGGING ADDED HERE
   db.prepare('INSERT INTO access_logs (user, action) VALUES (?, ?)')
     .run(session.username, `EDITED_NOTE_${noteId}`);
 
@@ -107,7 +102,6 @@ export async function editNote(formData: FormData) {
   return { success: true };
 }
 
-// ... (IA Actions remain same) ...
 export async function getAuditLog() {
   const session = await getSession();
   if (!session || session.role !== 'ia') return [];

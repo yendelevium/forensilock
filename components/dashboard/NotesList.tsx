@@ -9,7 +9,6 @@ export default function NotesList({ evidenceId, notes, userRole, currentUser, on
   const [editText, setEditText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new notes arrive
   useEffect(() => {
     if (scrollRef.current) {
        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -28,13 +27,13 @@ export default function NotesList({ evidenceId, notes, userRole, currentUser, on
 
   const handleAddNote = async (formData: FormData) => {
     await addNote(formData);
-    if (onUpdate) onUpdate(); // Trigger refresh
+    if (onUpdate) onUpdate(); 
   };
 
   const handleEditNote = async (formData: FormData) => {
     await editNote(formData);
     cancelEdit();
-    if (onUpdate) onUpdate(); // Trigger refresh
+    if (onUpdate) onUpdate();
   };
 
   return (
@@ -43,7 +42,6 @@ export default function NotesList({ evidenceId, notes, userRole, currentUser, on
          Case Notes <span className="bg-slate-800 text-slate-400 px-1.5 rounded-full text-[10px]">{notes.length}</span>
       </h4>
 
-      {/* SCROLLABLE CONTAINER */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 custom-scrollbar min-h-[150px]">
         {notes.length === 0 && (
            <div className="text-center py-8 text-slate-600 text-xs italic">
