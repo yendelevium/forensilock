@@ -82,3 +82,11 @@ export async function verifyMfa(userId: number, token: string) {
   return { success: true };
 }
 
+// Add this to the bottom of actions/auth-actions.ts
+import { logout } from '@/lib/auth'; // Ensure this import exists
+import { redirect } from 'next/navigation';
+
+export async function logoutAction() {
+  await logout();
+  redirect('/');
+}

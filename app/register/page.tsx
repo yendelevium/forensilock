@@ -1,72 +1,84 @@
 'use client';
 
-// 1. Change Import
 import { useActionState } from 'react';
 import { registerUser } from '@/actions/auth-actions';
 import Link from 'next/link';
-import { Shield, UserPlus, QrCode } from 'lucide-react';
+import { Shield, UserPlus, QrCode, CheckCircle2, ChevronLeft } from 'lucide-react';
 
 export default function RegisterPage() {
-  // 2. Update Hook
   const [state, formAction, isPending] = useActionState(registerUser, null);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-200">
-      <div className="bg-slate-900 p-8 rounded-xl border border-slate-800 w-96 shadow-2xl">
-        <h1 className="text-2xl font-bold text-cyan-500 mb-2 flex items-center gap-2">
-          <Shield /> ForensiLock
-        </h1>
-        <p className="text-slate-500 mb-6 text-sm">Secure Personnel Registration</p>
-
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black flex items-center justify-center p-4 text-slate-200">
+      
+      <div className="w-full max-w-md bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative">
+        
         {!state?.success ? (
-          <form action={formAction} className="space-y-4">
-            <div>
-              <label className="text-xs text-slate-400">Username</label>
-              <input name="username" className="w-full bg-slate-800 p-2 rounded border border-slate-700 focus:border-cyan-500 outline-none" required />
-            </div>
-            
-            <div>
-              <label className="text-xs text-slate-400">Password</label>
-              <input type="password" name="password" className="w-full bg-slate-800 p-2 rounded border border-slate-700 focus:border-cyan-500 outline-none" required />
+          /* --- STATE 1: REGISTRATION FORM --- */
+          <div className="p-8 animate-in fade-in zoom-in-95 duration-500">
+            <div className="flex items-center gap-2 mb-6 text-slate-400 hover:text-white transition-colors">
+              <Link href="/" className="flex items-center text-xs font-medium"><ChevronLeft size={14} /> Back to Login</Link>
             </div>
 
-            <div>
-              <label className="text-xs text-slate-400">Clearance Role</label>
-              <select name="role" className="w-full bg-slate-800 p-2 rounded border border-slate-700 focus:border-cyan-500 outline-none">
-                <option value="officer">Field Officer (Writer)</option>
-                <option value="detective">Detective (Reader)</option>
-                <option value="ia">Internal Affairs (Auditor)</option>
-              </select>
-            </div>
+            <h2 className="text-xl font-bold text-white mb-2">Personnel Registration</h2>
+            <p className="text-slate-500 text-sm mb-6">Create a secure identity for the chain of custody.</p>
 
-            <button disabled={isPending} className="w-full bg-cyan-600 p-3 rounded font-bold hover:bg-cyan-500 transition flex items-center justify-center gap-2 disabled:opacity-50">
-              <UserPlus size={18} /> {isPending ? 'Creating...' : 'Create ID'}
-            </button>
-            
-            {state?.error && <p className="text-red-400 text-sm text-center">{state.error}</p>}
-            
-            <div className="text-center text-xs mt-4">
-              <Link href="/" className="text-slate-400 hover:text-cyan-400">Already have an ID? Login</Link>
-            </div>
-          </form>
+            <form action={formAction} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Username</label>
+                <input name="username" className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-sm focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all" required />
+              </div>
+              
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Password</label>
+                <input type="password" name="password" className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-sm focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all" required />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Clearance Level</label>
+                <div className="relative">
+                  <select name="role" className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-sm focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer">
+                    <option value="officer">Field Officer (Evidence Submission)</option>
+                    <option value="detective">Detective (Case Review)</option>
+                    <option value="ia">Internal Affairs (Audit)</option>
+                  </select>
+                  <div className="absolute right-3 top-3.5 pointer-events-none text-slate-500">
+                    <Shield size={14} />
+                  </div>
+                </div>
+              </div>
+
+              <button disabled={isPending} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 rounded-lg mt-4 transition-all active:scale-[0.98] disabled:opacity-50">
+                {isPending ? 'Processing...' : 'Generate Identity'}
+              </button>
+              
+              {state?.error && <p className="text-red-400 text-xs text-center mt-2">{state.error}</p>}
+            </form>
+          </div>
         ) : (
-          <div className="text-center space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="bg-white p-4 rounded-lg inline-block">
-              <img src={state.qr} alt="MFA QR Code" className="w-48 h-48" />
+          /* --- STATE 2: QR CODE SCAN --- */
+          <div className="p-8 text-center animate-in slide-in-from-right duration-500">
+            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+              <CheckCircle2 className="text-emerald-500 w-8 h-8" />
             </div>
             
-            <div className="space-y-2">
-              <h3 className="text-emerald-400 font-bold flex items-center justify-center gap-2">
-                <QrCode size={18} /> Scan Required
-              </h3>
-              <p className="text-sm text-slate-400">
-                Open Google Authenticator and scan this code. You will need it to login.
-              </p>
+            <h2 className="text-xl font-bold text-white mb-2">Identity Created</h2>
+            <p className="text-slate-500 text-sm mb-6">Scan this TOTP code to enable Multi-Factor Auth.</p>
+
+            <div className="bg-white p-4 rounded-xl inline-block mb-6 shadow-xl">
+              <img src={state.qr} alt="MFA QR Code" className="w-48 h-48 mix-blend-multiply" />
+            </div>
+
+            <div className="bg-slate-950/50 rounded-lg p-3 mb-6 border border-slate-800">
+              <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+                <QrCode size={14} />
+                <span>Open <strong>Google Authenticator</strong> to scan</span>
+              </div>
             </div>
 
             <Link 
               href="/" 
-              className="block w-full bg-emerald-600 p-3 rounded font-bold hover:bg-emerald-500 transition"
+              className="block w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-emerald-900/20"
             >
               Proceed to Login
             </Link>
