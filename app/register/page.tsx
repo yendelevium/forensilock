@@ -3,82 +3,89 @@
 import { useActionState } from 'react';
 import { registerUser } from '@/actions/auth-actions';
 import Link from 'next/link';
-import { Shield, UserPlus, QrCode, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { Shield, UserPlus, QrCode, CheckCircle2, ChevronLeft, CreditCard } from 'lucide-react';
 
 export default function RegisterPage() {
   const [state, formAction, isPending] = useActionState(registerUser, null);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black flex items-center justify-center p-4 text-slate-200">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black flex items-center justify-center p-6 text-slate-200">
       
-      <div className="w-full max-w-md bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative">
+      {/* Background Accent */}
+      <div className="absolute w-full h-[1px] bottom-0 bg-gradient-to-r from-transparent via-cyan-900 to-transparent"></div>
+
+      <div className="w-full max-w-[420px] bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden ring-1 ring-white/5">
         
         {!state?.success ? (
-          /* --- STATE 1: REGISTRATION FORM --- */
+          /* --- STATE 1: FORM --- */
           <div className="p-8 animate-in fade-in zoom-in-95 duration-500">
-            <div className="flex items-center gap-2 mb-6 text-slate-400 hover:text-white transition-colors">
-              <Link href="/" className="flex items-center text-xs font-medium"><ChevronLeft size={14} /> Back to Login</Link>
+            <Link href="/" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-cyan-400 transition-colors mb-6 group">
+              <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+              Return to Login
+            </Link>
+
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white tracking-tight">New Clearance</h2>
+              <p className="text-slate-500 text-xs font-medium mt-1">Create a digital identity for the ledger.</p>
             </div>
 
-            <h2 className="text-xl font-bold text-white mb-2">Personnel Registration</h2>
-            <p className="text-slate-500 text-sm mb-6">Create a secure identity for the chain of custody.</p>
-
-            <form action={formAction} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Username</label>
-                <input name="username" className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-sm focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all" required />
+            <form action={formAction} className="space-y-5">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Username</label>
+                <input name="username" className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3.5 text-sm text-white focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-700" placeholder="e.g. officer_doe" required />
               </div>
               
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Password</label>
-                <input type="password" name="password" className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-sm focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all" required />
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Passphrase</label>
+                <input type="password" name="password" className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3.5 text-sm text-white focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-700" placeholder="••••••••" required />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Clearance Level</label>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Clearance Role</label>
                 <div className="relative">
-                  <select name="role" className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 text-sm focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer">
-                    <option value="officer">Field Officer (Evidence Submission)</option>
-                    <option value="detective">Detective (Case Review)</option>
-                    <option value="ia">Internal Affairs (Audit)</option>
+                  <select name="role" className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3.5 text-sm text-slate-200 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none appearance-none cursor-pointer hover:bg-slate-900 transition-colors">
+                    <option value="officer">Field Officer (Evidence Writer)</option>
+                    <option value="detective">Detective (Evidence Reader)</option>
+                    <option value="ia">Internal Affairs (System Auditor)</option>
                   </select>
-                  <div className="absolute right-3 top-3.5 pointer-events-none text-slate-500">
-                    <Shield size={14} />
+                  <div className="absolute right-3.5 top-3.5 pointer-events-none text-slate-500">
+                    <CreditCard size={16} />
                   </div>
                 </div>
               </div>
 
-              <button disabled={isPending} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 rounded-lg mt-4 transition-all active:scale-[0.98] disabled:opacity-50">
-                {isPending ? 'Processing...' : 'Generate Identity'}
+              <button disabled={isPending} className="w-full bg-white text-slate-950 font-bold py-3.5 rounded-xl mt-4 transition-all hover:bg-cyan-50 hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.4)] active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2">
+                {isPending ? <span className="animate-pulse">Processing...</span> : (
+                  <>Generate ID <UserPlus size={16} /></>
+                )}
               </button>
               
-              {state?.error && <p className="text-red-400 text-xs text-center mt-2">{state.error}</p>}
+              {state?.error && <div className="text-red-400 text-xs text-center font-bold bg-red-500/10 p-2 rounded-lg border border-red-500/20">{state.error}</div>}
             </form>
           </div>
         ) : (
-          /* --- STATE 2: QR CODE SCAN --- */
-          <div className="p-8 text-center animate-in slide-in-from-right duration-500">
-            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-              <CheckCircle2 className="text-emerald-500 w-8 h-8" />
+          /* --- STATE 2: SUCCESS --- */
+          <div className="p-8 text-center animate-in slide-in-from-right duration-500 flex flex-col items-center">
+            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6 border border-emerald-500/20 shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)]">
+              <CheckCircle2 className="text-emerald-400 w-10 h-10" />
             </div>
             
-            <h2 className="text-xl font-bold text-white mb-2">Identity Created</h2>
-            <p className="text-slate-500 text-sm mb-6">Scan this TOTP code to enable Multi-Factor Auth.</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Registration Complete</h2>
+            <p className="text-slate-500 text-xs font-medium mb-8 max-w-[250px] mx-auto">
+              Your digital identity is active. Scan the QR code below to bind your MFA device.
+            </p>
 
-            <div className="bg-white p-4 rounded-xl inline-block mb-6 shadow-xl">
-              <img src={state.qr} alt="MFA QR Code" className="w-48 h-48 mix-blend-multiply" />
+            <div className="bg-white p-3 rounded-2xl inline-block mb-8 shadow-2xl ring-4 ring-emerald-500/20">
+              <img src={state.qr} alt="MFA QR Code" className="w-40 h-40 mix-blend-multiply opacity-90" />
             </div>
 
-            <div className="bg-slate-950/50 rounded-lg p-3 mb-6 border border-slate-800">
-              <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
-                <QrCode size={14} />
-                <span>Open <strong>Google Authenticator</strong> to scan</span>
-              </div>
+            <div className="flex items-center gap-2 text-[10px] text-emerald-400 font-bold uppercase tracking-widest bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 mb-6">
+              <QrCode size={12} /> Scan with Authenticator
             </div>
 
             <Link 
               href="/" 
-              className="block w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-emerald-900/20"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)] block"
             >
               Proceed to Login
             </Link>
