@@ -5,6 +5,7 @@ export const db = globalForDb.db || new Database('forensilock.db');
 
 if (process.env.NODE_ENV !== 'production') globalForDb.db = db;
 
+db.pragma('journal_mode = WAL');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -23,15 +24,22 @@ db.exec(`
     submitted_by TEXT,
     category TEXT DEFAULT 'general',
     
-    -- NEW: Detective Analysis Columns
-    analysis_enc TEXT, 
-    analysis_iv TEXT,
-    analyzed_by TEXT,
+    -- Removed old analysis columns (moved to case_notes table)
     
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  -- NEW: Access Logs Table
+  -- NEW: TABLE FOR MULTIPLE NOTES
+  CREATE TABLE IF NOT EXISTS case_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    evidence_id INTEGER,
+    author TEXT,
+    note_enc TEXT,
+    note_iv TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(evidence_id) REFERENCES evidence(id)
+  );
+
   CREATE TABLE IF NOT EXISTS access_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user TEXT,
