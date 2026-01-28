@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 
-// Use a fixed key for the lab (In prod, use env vars)
 const ENCRYPTION_KEY = crypto.scryptSync('lab-password', 'salt', 32);
 const IV_LENGTH = 16;
 
@@ -13,11 +12,17 @@ export const encrypt = (text: string) => {
 };
 
 export const decrypt = (text: string, ivHex: string) => {
-  const iv = Buffer.from(ivHex, 'hex');
-  const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
-  let decrypted = decipher.update(Buffer.from(text, 'hex'));
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString();
+  try {
+    const iv = Buffer.from(ivHex, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
+    let decrypted = decipher.update(Buffer.from(text, 'hex'));
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+  } catch (error) {
+    // This catches the "wrong final block length" error
+    console.error("Decryption failed:", error);
+    return "DECRYPTION_FAILURE: Data corrupted or key mismatch.";
+  }
 };
 
 export const generateHash = (data: string) => {

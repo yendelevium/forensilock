@@ -16,7 +16,7 @@ console.log(`Original Cipher: ${latest.description_enc.substring(0, 20)}...`);
 // 2. TAMPERING: Change the encrypted data slightly
 // We append a random string to the encrypted text.
 // This simulates someone corrupting the file or trying to edit it manually.
-const tamperedData = latest.description_enc + "_HACKED";
+const tamperedData = latest.description_enc + "AAAAAAA";
 
 db.run("UPDATE evidence SET description_enc = ? WHERE id = ?", [tamperedData, latest.id]);
 

@@ -1,6 +1,6 @@
 'use client';
 import { getEvidence } from '@/actions/evidence-actions';
-import { RefreshCw, Database } from 'lucide-react';
+import { RefreshCw, Database, AlertOctagon, FileWarning } from 'lucide-react';
 import { useState } from 'react';
 
 export default function DetectiveView() {
@@ -38,31 +38,53 @@ export default function DetectiveView() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {data.map((e) => (
-          <div key={e.id} className="group relative bg-slate-900/50 backdrop-blur-md rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-900/10 overflow-hidden">
-            {/* Removed the Unlock Icon Overlay here */}
-            
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-              <span className="font-mono text-xs text-slate-500">ID: <span className="text-slate-300">#{e.id.toString().padStart(4, '0')}</span></span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500/80 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
-                Verified: {e.submitted_by}
-              </span>
+        {data.map((e) => {
+          const isCorrupted = e.description.startsWith("DECRYPTION_FAILURE");
+
+          return (
+            <div 
+              key={e.id} 
+              className={`group relative backdrop-blur-md rounded-2xl border transition-all duration-300 overflow-hidden shadow-lg 
+                ${isCorrupted 
+                  ? 'bg-red-950/20 border-red-500/50 hover:shadow-red-900/20' 
+                  : 'bg-slate-900/50 border-white/5 hover:border-emerald-500/30 hover:shadow-emerald-900/10'
+                }`}
+            >
+              <div className={`p-6 border-b flex justify-between items-center ${isCorrupted ? 'bg-red-500/10 border-red-500/20' : 'bg-white/[0.02] border-white/5'}`}>
+                <span className={`font-mono text-xs ${isCorrupted ? 'text-red-400' : 'text-slate-500'}`}>
+                  ID: <span className={isCorrupted ? 'text-red-200 font-bold' : 'text-slate-300'}>#{e.id.toString().padStart(4, '0')}</span>
+                </span>
+                
+                {/* --- CHANGED BADGE LOGIC HERE --- */}
+                {isCorrupted ? (
+                   <span className="text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-950 px-2 py-1 rounded border border-red-500/40 flex items-center gap-1 animate-pulse">
+                     <AlertOctagon size={10} /> Tampered: {e.submitted_by}
+                   </span>
+                ) : (
+                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500/80 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                     Verified: {e.submitted_by}
+                   </span>
+                )}
+              </div>
+              
+              <div className="p-6">
+                {isCorrupted ? (
+                  <div className="flex flex-col items-center text-center py-2">
+                     <FileWarning className="w-10 h-10 text-red-500 mb-2" />
+                     <p className="text-red-400 font-bold text-sm">DATA CORRUPTION DETECTED</p>
+                     <p className="text-red-500/60 text-xs mt-1 font-mono">
+                        Error: Block Padding Mismatch.<br/>Ciphertext has been modified.
+                     </p>
+                  </div>
+                ) : (
+                  <p className="font-mono text-emerald-100/80 text-sm leading-relaxed whitespace-pre-wrap">
+                    {e.description}
+                  </p>
+                )}
+              </div>
             </div>
-            
-            <div className="p-6">
-              <p className="font-mono text-emerald-100/80 text-sm leading-relaxed whitespace-pre-wrap">
-                {e.description}
-              </p>
-            </div>
-          </div>
-        ))}
-        
-        {data.length === 0 && !loading && (
-          <div className="col-span-full py-20 text-center border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
-            <Database className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-            <p className="text-slate-500 text-sm">Vault locked. Authenticate to decrypt files.</p>
-          </div>
-        )}
+          );
+        })}
       </div>
     </div>
   );
