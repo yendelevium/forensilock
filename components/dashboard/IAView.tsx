@@ -1,6 +1,6 @@
 'use client';
 import { getAuditLog } from '@/actions/evidence-actions';
-import { Lock, AlertTriangle, CheckCircle, ShieldAlert, Activity } from 'lucide-react';
+import { Lock, AlertTriangle, CheckCircle, ShieldAlert, Activity, ArrowDown } from 'lucide-react';
 import { useState } from 'react';
 
 export default function IAView() {
@@ -20,6 +20,7 @@ export default function IAView() {
 
   return (
     <div className="max-w-7xl mx-auto">
+      {/* Header Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
         <div className="lg:col-span-2 flex items-center gap-6">
           <div className="p-4 bg-red-500/10 rounded-2xl border border-red-500/20 shadow-[0_0_30px_-10px_rgba(239,68,68,0.2)]">
@@ -43,6 +44,7 @@ export default function IAView() {
         </div>
       </div>
 
+      {/* Summary Cards */}
       {logs.length > 0 && (
         <div className="grid grid-cols-2 gap-4 mb-8 animate-in slide-in-from-bottom-4">
           <div className="bg-slate-900/50 backdrop-blur border border-white/5 p-6 rounded-2xl">
@@ -61,25 +63,51 @@ export default function IAView() {
         </div>
       )}
 
+      {/* Main Table */}
       <div className="bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
         <table className="w-full text-left border-collapse table-fixed">
           <thead>
             <tr className="border-b border-white/5 bg-white/[0.02]">
-              <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest w-20">ID</th>
-              {/* Made Hash column wider */}
-              <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Merkle Root / Hash</th>
-              <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right w-40">Result</th>
+              <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest w-20 align-top">ID</th>
+              <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Cryptographic Hash Verification</th>
+              <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right w-40 align-top">Verdict</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {logs.map((log) => (
-              <tr key={log.id} className="hover:bg-white/[0.02] transition-colors group">
+              <tr key={log.id} className={`hover:bg-white/[0.02] transition-colors group ${log.status === 'TAMPERED' ? 'bg-red-500/5' : ''}`}>
                 <td className="p-5 font-mono text-slate-500 group-hover:text-slate-300 transition-colors align-top">#{log.id}</td>
                 <td className="p-5">
-                    {/* Hash Display: Brighter color, Monospace, Word Break to see full hash */}
-                    <div className="font-mono text-xs text-cyan-300 bg-black/40 px-4 py-3 rounded-lg border border-white/10 break-all leading-relaxed shadow-inner">
-                        {log.storedHash}
-                    </div>
+                    {log.status === 'SECURE' ? (
+                       /* SECURE VIEW */
+                       <div className="space-y-1">
+                          <span className="text-[10px] text-emerald-500/50 font-bold uppercase tracking-widest block">Stored & Verified Match</span>
+                          <div className="font-mono text-xs text-cyan-300/80 bg-black/40 px-3 py-2 rounded border border-white/5 break-all">
+                              {log.storedHash}
+                          </div>
+                       </div>
+                    ) : (
+                       /* TAMPERED VIEW - THE DIFF */
+                       <div className="space-y-3">
+                          <div>
+                            <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest block mb-1">Expected (Stored)</span>
+                            <div className="font-mono text-xs text-emerald-400/70 bg-emerald-900/20 px-3 py-2 rounded border border-emerald-500/20 break-all select-all">
+                                {log.storedHash}
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-center -my-2 opacity-50">
+                            <ArrowDown size={14} className="text-red-500" />
+                          </div>
+
+                          <div>
+                             <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest block mb-1">Actual (Calculated)</span>
+                             <div className="font-mono text-xs text-red-400 bg-red-900/20 px-3 py-2 rounded border border-red-500/20 break-all select-all shadow-[0_0_10px_rgba(239,68,68,0.1)]">
+                                 {log.calculatedHash}
+                             </div>
+                          </div>
+                       </div>
+                    )}
                 </td>
                 <td className="p-5 text-right align-top">
                   {log.status === 'SECURE' ? (
