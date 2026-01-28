@@ -4,8 +4,39 @@ import { db } from '@/lib/db';
 import bcrypt from 'bcrypt';
 import QRCode from 'qrcode';
 import { createSession } from '@/lib/auth';
-// FIX: Switch to speakeasy to avoid import errors
 import speakeasy from 'speakeasy';
+import { redirect } from 'next/navigation';
+
+// --- NIST COMPLIANCE UTILS ---
+const COMMON_PASSWORDS = new Set([
+  'password', '123456', '12345678', '123456789', 'qwerty', '111111', 
+  'admin', 'welcome', 'login', 'forensilock', 'security', 'letmein'
+]);
+
+function validateNIST(password: string, username: string): string | null {
+  // 1. Length Requirement (NIST 800-63B: Min 8 chars)
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long.";
+  }
+  
+  // 2. Max Length (Prevent DoS on hashing)
+  if (password.length > 64) {
+    return "Password is too long (Max 64 characters).";
+  }
+
+  // 3. Breached/Common Password Check (Blacklist)
+  if (COMMON_PASSWORDS.has(password.toLowerCase())) {
+    return "This password is too common (NIST Blacklist). Please choose a stronger one.";
+  }
+
+  // 4. Context Check (Should not contain username)
+  if (password.toLowerCase().includes(username.toLowerCase())) {
+    return "Password cannot contain your username.";
+  }
+
+  return null; // Valid
+}
+// -----------------------------
 
 export async function registerUser(prevState: any, formData: FormData) {
   const username = formData.get('username') as string;
@@ -14,25 +45,26 @@ export async function registerUser(prevState: any, formData: FormData) {
   
   if (!username || !password || !role) return { error: 'All fields required' };
 
+  // CHECK: Run NIST Validation
+  const passwordError = validateNIST(password, username);
+  if (passwordError) {
+    return { error: passwordError };
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // SPEAKEASY FIX: Generate secret securely
+    // NIST: Use Base32 for TOTP secrets (Standard)
     const secret = speakeasy.generateSecret({ 
       name: `ForensiLock (${username})` 
     });
     
-    // Store the 'base32' version of the secret in DB
     const mfaSecret = secret.base32; 
 
-    // Insert into DB
     const stmt = db.prepare('INSERT INTO users (username, password, role, mfa_secret) VALUES (?, ?, ?, ?)');
     stmt.run(username, hashedPassword, role, mfaSecret);
 
-    // Generate QR using the otpauth_url provided by speakeasy
-    // Note: secret.otpauth_url might be undefined if name isn't set, but we set it above.
     const otpauth = secret.otpauth_url; 
-    
     if (!otpauth) throw new Error('Failed to generate OTP URL');
 
     const qr = await QRCode.toDataURL(otpauth);
@@ -40,7 +72,6 @@ export async function registerUser(prevState: any, formData: FormData) {
     return { success: true, qr, role };
   } catch (e: any) {
     console.error('Registration Error:', e);
-    // specific error code for unique constraint violations in sqlite
     if (e.message && e.message.includes('UNIQUE constraint failed')) {
        return { error: 'Username already taken' };
     }
@@ -49,6 +80,9 @@ export async function registerUser(prevState: any, formData: FormData) {
 }
 
 export async function loginUser(prevState: any, formData: FormData) {
+  // NIST: Artificial Delay to prevent high-speed Brute Force (Rate Limiting Simulation)
+  await new Promise(resolve => setTimeout(resolve, 500)); 
+
   const username = formData.get('username') as string;
   const password = formData.get('password') as string;
 
@@ -66,12 +100,11 @@ export async function verifyMfa(userId: number, token: string) {
   
   if (!user) return { error: 'User not found' };
 
-  // SPEAKEASY FIX: Verify the token
   const verified = speakeasy.totp.verify({
     secret: user.mfa_secret,
     encoding: 'base32',
     token: token,
-    window: 1 // Allow 30sec leeway for time drift
+    window: 1 
   });
 
   if (!verified) {
@@ -82,11 +115,7 @@ export async function verifyMfa(userId: number, token: string) {
   return { success: true };
 }
 
-// Add this to the bottom of actions/auth-actions.ts
-import { logout } from '@/lib/auth'; // Ensure this import exists
-import { redirect } from 'next/navigation';
-
 export async function logoutAction() {
-  await logout();
+  await import('@/lib/auth').then(mod => mod.logout());
   redirect('/');
 }

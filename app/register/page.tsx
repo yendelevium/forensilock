@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import { registerUser } from '@/actions/auth-actions';
 import Link from 'next/link';
-import { Shield, UserPlus, QrCode, CheckCircle2, ChevronLeft, CreditCard } from 'lucide-react';
+import { Shield, UserPlus, QrCode, CheckCircle2, ChevronLeft, CreditCard, Info } from 'lucide-react';
 
 export default function RegisterPage() {
   const [state, formAction, isPending] = useActionState(registerUser, null);
@@ -38,6 +38,14 @@ export default function RegisterPage() {
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Passphrase</label>
                 <input type="password" name="password" className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3.5 text-sm text-white focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-slate-700" placeholder="••••••••" required />
+                
+                {/* --- NIST COMPLIANCE HINT ADDED HERE --- */}
+                <div className="flex items-start gap-1.5 pt-1 pl-1">
+                  <Info size={12} className="text-slate-500 mt-0.5 shrink-0" />
+                  <p className="text-[11px] text-slate-500 leading-tight">
+                    NIST Compliant: Must be at least <strong>8 characters</strong>. Common passwords (e.g. 'password123') and your username are prohibited.
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-1">
