@@ -32,7 +32,6 @@ export default function DetectiveView() {
 
       <div className="grid grid-cols-1 gap-6">
         {data.map((e) => {
-          // CHECK FOR PLAIN TEXT FAILURE STRING
           const isDescCorrupted = e.description.startsWith("DECRYPTION_FAILURE");
           const isTotalCorruption = isDescCorrupted || e.isImageCorrupted;
 
@@ -81,14 +80,15 @@ export default function DetectiveView() {
                             </div>
                         </div>
                     ) : e.imageUrl ? (
-                        <div className="rounded-xl overflow-hidden border border-white/10 relative group bg-black/50">
+                        /* SCROLLABLE IMAGE CONTAINER */
+                        <div className="rounded-xl overflow-y-auto max-h-[300px] border border-white/10 relative group bg-black/50 custom-scrollbar">
                              <img 
                                src={e.imageUrl} 
                                alt="Evidence" 
-                               className="w-full h-auto max-h-[300px] object-cover opacity-90 group-hover:opacity-100 transition-opacity" 
+                               className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity" 
                              />
                              {e.image_caption && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-3 text-xs text-white backdrop-blur-sm border-t border-white/10">
+                                <div className="sticky bottom-0 left-0 right-0 bg-black/70 p-3 text-xs text-white backdrop-blur-sm border-t border-white/10">
                                    <span className="font-bold text-cyan-400 uppercase text-[10px] tracking-wide mr-2">Caption:</span> 
                                    {e.image_caption}
                                 </div>

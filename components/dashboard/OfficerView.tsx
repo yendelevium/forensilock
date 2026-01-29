@@ -19,12 +19,12 @@ export default function OfficerView() {
     loadEvidence();
     if (state?.success) {
        setActiveTab('cases');
-       setFileName(null); // Reset file input UI
+       setFileName(null);
     }
   }, [state]);
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto"> {/* Width increased for side-by-side view */}
       
       {/* TABS */}
       <div className="flex gap-4 mb-6 border-b border-white/5 pb-1">
@@ -44,7 +44,7 @@ export default function OfficerView() {
 
       {/* TAB 1: LOG FORM */}
       {activeTab === 'log' && (
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-b-3xl rounded-tr-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-2">
+        <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-b-3xl rounded-tr-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-2 max-w-3xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center border border-cyan-500/20">
               <Shield className="text-cyan-400" size={24} />
@@ -56,7 +56,6 @@ export default function OfficerView() {
           </div>
 
           <form action={formAction} className="space-y-6">
-            {/* Description */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Description</label>
               <textarea 
@@ -65,7 +64,6 @@ export default function OfficerView() {
               />
             </div>
 
-            {/* NEW: Image Upload */}
             <div className="p-5 rounded-xl bg-slate-950/30 border border-white/5 space-y-3">
                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                   <Camera size={14} /> Attach Visual Evidence (Optional)
@@ -104,15 +102,16 @@ export default function OfficerView() {
         </div>
       )}
 
-      {/* TAB 2: CASES LIST */}
+      {/* TAB 2: CASES LIST (SIDE BY SIDE LAYOUT) */}
       {activeTab === 'cases' && (
-        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-           <div className="max-h-[600px] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+           <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
              {myEvidence.length === 0 && <div className="text-center py-12 text-slate-500 italic">No cases logged yet.</div>}
              
              {myEvidence.map((e) => (
-               <div key={e.id} className="bg-slate-900/80 border border-white/5 rounded-2xl overflow-hidden shadow-lg">
-                  <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+               <div key={e.id} className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden shadow-lg">
+                  {/* Header */}
+                  <div className="p-4 border-b border-white/5 bg-black/20 flex justify-between items-center">
                      <div className="flex items-center gap-3">
                         <span className="font-mono text-xs text-slate-400">#{e.id}</span>
                         <span className="text-[10px] text-indigo-300 font-bold uppercase bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">{e.category}</span>
@@ -120,27 +119,44 @@ export default function OfficerView() {
                      <span className="text-[10px] text-slate-500 font-mono">{new Date(e.timestamp).toLocaleDateString()}</span>
                   </div>
                   
-                  <div className="p-5">
-                     <p className="text-sm text-slate-300 mb-4 font-mono leading-relaxed">{e.description}</p>
-                     
-                     {/* Image Preview for Officer */}
-                     {e.imageUrl && (
-                        <div className="mb-4 rounded-xl overflow-hidden border border-white/10 bg-black/50 relative group">
-                           <img src={e.imageUrl} alt="Evidence" className="h-32 w-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
-                           <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-[10px] text-white">
-                              {e.image_caption || 'Attached Evidence'}
-                           </div>
-                        </div>
-                     )}
+                  {/* Side by Side Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2">
+                      {/* Left: Evidence & Image */}
+                      <div className="p-6 border-b lg:border-b-0 lg:border-r border-white/5">
+                         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Primary Evidence</h4>
+                         <p className="text-sm text-slate-300 mb-6 font-mono leading-relaxed bg-slate-950/30 p-4 rounded-xl border border-white/5">
+                            {e.description}
+                         </p>
+                         
+                         {e.imageUrl ? (
+                            <div className="space-y-2">
+                               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                  <ImageIcon size={12} /> Visual Attachment
+                               </h4>
+                               {/* SCROLLABLE IMAGE CONTAINER */}
+                               <div className="rounded-xl overflow-y-auto max-h-[300px] border border-white/10 relative group bg-black/50 custom-scrollbar">
+                                  <img src={e.imageUrl} alt="Evidence" className="w-full h-auto object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                  <div className="sticky bottom-0 left-0 right-0 bg-black/80 p-2 text-[10px] text-white backdrop-blur-sm border-t border-white/10">
+                                     {e.image_caption || 'Attached Evidence'}
+                                  </div>
+                               </div>
+                            </div>
+                         ) : (
+                            <div className="text-xs text-slate-600 italic p-4 border border-dashed border-white/5 rounded-xl text-center">
+                               No visual evidence attached.
+                            </div>
+                         )}
+                      </div>
 
-                     <div className="bg-black/30 rounded-xl p-4 border border-white/5">
-                        <NotesList 
-                           evidenceId={e.id} 
-                           notes={e.notes} 
-                           userRole="officer"
-                           currentUser="" 
-                        />
-                     </div>
+                      {/* Right: Notes */}
+                      <div className="p-6 bg-slate-950/30">
+                         <NotesList 
+                            evidenceId={e.id} 
+                            notes={e.notes} 
+                            userRole="officer"
+                            currentUser="" 
+                         />
+                      </div>
                   </div>
                </div>
              ))}
