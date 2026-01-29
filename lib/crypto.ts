@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = crypto.scryptSync('lab-password', 'salt', 32);
+const ENCRYPTION_KEY = crypto.scryptSync( process.env.ENCRYPTION_PASSWORD || 'lab-password', process.env.ENCRYPTION_SALT || 'salt', 32);
 const IV_LENGTH = 16;
 
 export const encrypt = (text: string) => {

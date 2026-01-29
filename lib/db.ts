@@ -24,12 +24,13 @@ db.exec(`
     submitted_by TEXT,
     category TEXT DEFAULT 'general',
     
-    -- Removed old analysis columns (moved to case_notes table)
+    image_enc TEXT,
+    image_iv TEXT,
+    image_caption TEXT,
     
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  -- NEW: TABLE FOR MULTIPLE NOTES
   CREATE TABLE IF NOT EXISTS case_notes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     evidence_id INTEGER,

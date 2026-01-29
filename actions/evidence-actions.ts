@@ -13,12 +13,32 @@ export async function submitEvidence(prevState: any, formData: FormData) {
   const description = formData.get('description') as string;
   const category = formData.get('category') as string || 'general';
   
-  const { content: encrypted, iv } = encrypt(description);
-  const hash = crypto.createHash('sha256').update(encrypted + category).digest('hex');
+  const file = formData.get('image') as File;
+  const caption = formData.get('caption') as string;
+  
+  let imageEnc = null;
+  let imageIv = null;
+
+  if (file && file.size > 0) {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64 = buffer.toString('base64');
+      
+      const encryptedImage = encrypt(base64);
+      imageEnc = encryptedImage.content;
+      imageIv = encryptedImage.iv;
+  }
+  
+  const { content: descEnc, iv: descIv } = encrypt(description);
+  
+  const hash = crypto.createHash('sha256')
+    .update(descEnc + category + (imageEnc || ''))
+    .digest('hex');
 
   db.prepare(
-    'INSERT INTO evidence (description_enc, iv, hash, submitted_by, category) VALUES (?, ?, ?, ?, ?)'
-  ).run(encrypted, iv, hash, session.username, category);
+    `INSERT INTO evidence (description_enc, iv, hash, submitted_by, category, image_enc, image_iv, image_caption) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(descEnc, descIv, hash, session.username, category, imageEnc, imageIv, caption);
 
   revalidatePath('/dashboard');
   return { success: true };
@@ -49,9 +69,25 @@ export async function getEvidence() {
         text: decrypt(n.note_enc, n.note_iv),
         updated_at: n.updated_at
      }));
+
+     let imageUrl = null;
+     let isImageCorrupted = false;
+
+     if (row.image_enc) {
+        const decryptedBlob = decrypt(row.image_enc, row.image_iv);
+        // UPDATED CHECK: No emoji
+        if (decryptedBlob.startsWith('DECRYPTION_FAILURE')) {
+           isImageCorrupted = true;
+        } else {
+           imageUrl = `data:image/jpeg;base64,${decryptedBlob}`;
+        }
+     }
+
      return {
         ...row,
         description: decrypt(row.description_enc, row.iv),
+        imageUrl,
+        isImageCorrupted,
         notes: decryptedNotes
      };
   });
@@ -107,11 +143,19 @@ export async function getAuditLog() {
   if (!session || session.role !== 'ia') return [];
   const rows = db.prepare('SELECT * FROM evidence ORDER BY id DESC').all() as any[];
   return rows.map(row => {
-    const currentHash = crypto.createHash('sha256').update(row.description_enc + (row.category || 'general')).digest('hex');
-    return { id: row.id, storedHash: row.hash, status: currentHash !== row.hash ? 'TAMPERED' : 'SECURE' };
+    const currentHash = crypto.createHash('sha256')
+       .update(row.description_enc + (row.category || 'general') + (row.image_enc || ''))
+       .digest('hex');
+    const isTampered = currentHash !== row.hash;
+    return { 
+      id: row.id, 
+      storedHash: row.hash, 
+      // FIX: We must return the calculated hash so the UI can show it!
+      currentHash: currentHash, 
+      status: isTampered ? 'TAMPERED' : 'SECURE' 
+    };
   });
 }
-
 export async function getAccessLogs() {
   const session = await getSession();
   if (!session || session.role !== 'ia') return [];

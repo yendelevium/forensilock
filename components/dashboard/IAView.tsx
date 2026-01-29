@@ -85,6 +85,7 @@ export default function IAView() {
                               </div>
                            </div>
                         ) : (
+                           /* TAMPERED VIEW */
                            <div className="space-y-3">
                               <div>
                                 <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest block mb-1">Expected (Stored)</span>
@@ -100,7 +101,8 @@ export default function IAView() {
                               <div>
                                  <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest block mb-1">Actual (Calculated)</span>
                                  <div className="font-mono text-xs text-red-400 bg-red-900/20 px-3 py-2 rounded border border-red-500/20 break-all select-all shadow-[0_0_10px_rgba(239,68,68,0.1)]">
-                                     {log.calculatedHash}
+                                     {/* ⚠️ FIX: Changed from 'calculatedHash' to 'currentHash' to match backend */}
+                                     {log.currentHash}
                                  </div>
                               </div>
                            </div>
