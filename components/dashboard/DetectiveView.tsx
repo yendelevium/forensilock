@@ -11,7 +11,6 @@ export default function DetectiveView() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Notebook State
   const [notebookKey, setNotebookKey] = useState<CryptoKey | null>(null);
   const [keyStatus, setKeyStatus] = useState('Initializing Secure Enclave...');
   const [privateNotes, setPrivateNotes] = useState<any[]>([]);
@@ -20,18 +19,13 @@ export default function DetectiveView() {
 
   const currentUser = "detective_holmes"; 
 
-  // 1. HYBRID CRYPTO SETUP (Runs once on mount)
   useEffect(() => {
     const setupCrypto = async () => {
       try {
-         // A. Generate AES-256 Session Key
          const key = await generateNotebookKey();
          setNotebookKey(key);
-         
-         // B. Wrap with Server RSA Key (Escrow)
          const wrappedKeyBlob = await wrapKeyForServer(key);
          await saveEscrowKey(wrappedKeyBlob);
-         
          setKeyStatus('AES-256 Active • RSA Escrowed');
       } catch (e) {
          console.error(e);
@@ -41,17 +35,14 @@ export default function DetectiveView() {
     setupCrypto();
   }, []);
 
-  // 2. DATA LOADING
   const load = async () => {
     setLoading(true);
     const rows = await getEvidence();
     setData(rows);
     
-    // Load Private Notes
     const pNotes = await getPrivateNotes();
     setPrivateNotes(pNotes);
     
-    // Auto-Decrypt Notes if Key exists
     if (notebookKey) {
         pNotes.forEach(async (n: any) => {
             const text = await decryptNote(n.content_enc, notebookKey);
@@ -61,9 +52,8 @@ export default function DetectiveView() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [notebookKey]); // Reload when key is ready
+  useEffect(() => { load(); }, [notebookKey]);
 
-  // 3. SAVE NOTE HANDLER
   const handleSaveNote = async () => {
      if (!newNote || !notebookKey) return;
      const encrypted = await encryptNote(newNote, notebookKey);
@@ -74,7 +64,6 @@ export default function DetectiveView() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* HEADER & TABS */}
       <div className="flex justify-between items-end mb-8 border-b border-white/5 pb-0">
         <div>
            <h2 className="text-3xl font-bold text-white tracking-tight">Case Management</h2>
@@ -95,7 +84,6 @@ export default function DetectiveView() {
         </button>
       </div>
 
-      {/* VIEW: CASES */}
       {activeTab === 'cases' && (
         <div className="grid grid-cols-1 gap-6">
           {data.map((e) => {
@@ -150,10 +138,8 @@ export default function DetectiveView() {
         </div>
       )}
 
-      {/* VIEW: PRIVATE NOTEBOOK */}
       {activeTab === 'notebook' && (
          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-2">
-            {/* WRITE */}
             <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 h-fit">
                <div className="flex items-center gap-3 mb-4">
                   <div className="bg-purple-500/10 p-2 rounded-lg"><Shield size={20} className="text-purple-500"/></div>
@@ -172,7 +158,6 @@ export default function DetectiveView() {
                </button>
             </div>
 
-            {/* READ */}
             <div className="lg:col-span-2 space-y-4">
                {privateNotes.map(note => (
                   <div key={note.id} className="bg-slate-900/40 border border-white/5 rounded-xl p-4 hover:border-purple-500/30 transition-all group">

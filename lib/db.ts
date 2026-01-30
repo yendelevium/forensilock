@@ -1,4 +1,3 @@
-// lib/db.ts
 import Database from 'better-sqlite3';
 
 const globalForDb = global as unknown as { db: Database.Database };
@@ -6,10 +5,8 @@ export const db = globalForDb.db || new Database('forensilock.db');
 
 if (process.env.NODE_ENV !== 'production') globalForDb.db = db;
 
-// Enable WAL for concurrency
 db.pragma('journal_mode = WAL');
 
-// 1. INITIAL SCHEMA (The Base Tables)
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,24 +34,18 @@ db.exec(`
   );
 `);
 
-// 2. MIGRATION: SECURE NOTEBOOK (Safe to run every time)
 try {
-  // Try to add the column for the encrypted notebook key
   db.prepare("ALTER TABLE users ADD COLUMN encrypted_notebook_key TEXT").run();
   console.log("MIGRATION: Added 'encrypted_notebook_key' to users.");
 } catch (error) {
-  // Ignore error if column already exists
 }
 
 try {
-  // Try to add the column for Public Keys (if you haven't already)
   db.prepare("ALTER TABLE users ADD COLUMN public_key TEXT").run();
   console.log("MIGRATION: Added 'public_key' to users.");
 } catch (error) {
-  // Ignore error
 }
 
-// 3. CREATE PRIVATE NOTES TABLE (Separate Table)
 db.exec(`
   CREATE TABLE IF NOT EXISTS private_notes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

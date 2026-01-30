@@ -20,13 +20,13 @@ export async function submitEvidence(prevState: any, formData: FormData) {
   let imageIv = null;
 
   if (file && file.size > 0) {
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const base64 = buffer.toString('base64');
-      
-      const encryptedImage = encrypt(base64);
-      imageEnc = encryptedImage.content;
-      imageIv = encryptedImage.iv;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    
+    const encryptedImage = encrypt(base64);
+    imageEnc = encryptedImage.content;
+    imageIv = encryptedImage.iv;
   }
   
   const { content: descEnc, iv: descIv } = encrypt(description);
@@ -150,7 +150,6 @@ export async function getAuditLog() {
     return { 
       id: row.id, 
       storedHash: row.hash, 
-      // FIX: We must return the calculated hash so the UI can show it!
       currentHash: currentHash, 
       status: isTampered ? 'TAMPERED' : 'SECURE' 
     };

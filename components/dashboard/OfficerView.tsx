@@ -26,7 +26,6 @@ export default function OfficerView() {
   return (
     <div className="max-w-5xl mx-auto">
       
-      {/* TABS */}
       <div className="flex gap-4 mb-6 border-b border-white/5 pb-1">
          <button 
            onClick={() => setActiveTab('log')}
@@ -42,7 +41,6 @@ export default function OfficerView() {
          </button>
       </div>
 
-      {/* TAB 1: LOG FORM */}
       {activeTab === 'log' && (
         <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-b-3xl rounded-tr-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-2 max-w-3xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
@@ -57,7 +55,6 @@ export default function OfficerView() {
 
           <form action={formAction} className="space-y-6">
             
-            {/* EVIDENCE TYPE SELECTOR (DARK MODE) */}
             <div className="space-y-2">
                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-2">
                   <Tag size={12} /> Evidence Classification
@@ -68,7 +65,6 @@ export default function OfficerView() {
                    defaultValue="general"
                    className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-4 text-slate-200 focus:border-cyan-500/50 outline-none font-mono text-sm cursor-pointer hover:bg-slate-900/80 transition-colors appearance-none"
                  >
-                    {/* Added styling to options for consistent dark mode across browsers */}
                     <option value="general" className="bg-slate-900 text-slate-200">General / Miscellaneous</option>
                     <option value="physical" className="bg-slate-900 text-slate-200">Physical (Weapon, Item, Hardware)</option>
                     <option value="digital" className="bg-slate-900 text-slate-200">Digital (Hard Drive, USB, Phone)</option>
@@ -76,7 +72,6 @@ export default function OfficerView() {
                     <option value="document" className="bg-slate-900 text-slate-200">Document / Paper Trail</option>
                  </select>
                  
-                 {/* Custom Chevron Arrow */}
                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                     <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                  </div>
@@ -129,7 +124,6 @@ export default function OfficerView() {
         </div>
       )}
 
-      {/* TAB 2: CASES LIST */}
       {activeTab === 'cases' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
            <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
@@ -141,7 +135,6 @@ export default function OfficerView() {
                   <div className="p-4 border-b border-white/5 bg-black/20 flex justify-between items-center">
                      <div className="flex items-center gap-3">
                         <span className="font-mono text-xs text-slate-400">#{e.id}</span>
-                        {/* Display Category Badge */}
                         <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded border ${
                             e.category === 'biological' ? 'text-red-300 bg-red-500/10 border-red-500/20' :
                             e.category === 'digital' ? 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20' :
@@ -154,9 +147,7 @@ export default function OfficerView() {
                      <span className="text-[10px] text-slate-500 font-mono">{new Date(e.timestamp).toLocaleDateString()}</span>
                   </div>
                   
-                  {/* Side by Side Layout */}
                   <div className="grid grid-cols-1 lg:grid-cols-2">
-                      {/* Left: Evidence & Image */}
                       <div className="p-6 border-b lg:border-b-0 lg:border-r border-white/5">
                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Primary Evidence</h4>
                          <p className="text-sm text-slate-300 mb-6 font-mono leading-relaxed bg-slate-950/30 p-4 rounded-xl border border-white/5">
@@ -182,7 +173,6 @@ export default function OfficerView() {
                          )}
                       </div>
 
-                      {/* Right: Notes */}
                       <div className="p-6 bg-slate-950/30">
                          <NotesList 
                             evidenceId={e.id} 

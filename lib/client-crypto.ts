@@ -1,6 +1,3 @@
-// lib/client-crypto.ts
-
-// 1. GENERATE SYMMETRIC KEY (AES-GCM 256)
 export async function generateNotebookKey() {
   return window.crypto.subtle.generateKey(
     { name: "AES-GCM", length: 256 },
@@ -9,13 +6,10 @@ export async function generateNotebookKey() {
   );
 }
 
-// 2. WRAP KEY (Hybrid Exchange)
 export async function wrapKeyForServer(aesKey: CryptoKey) {
-  // Read Key from Env (Client Side)
   const pem = process.env.NEXT_PUBLIC_HQ_PUBLIC_KEY;
   if (!pem) throw new Error("HQ Public Key not found in Environment");
 
-  // Import RSA Key
   const binaryDerString = window.atob(pem.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, "").replace(/\s/g, ""));
   const binaryDer = new Uint8Array(binaryDerString.length);
   for (let i = 0; i < binaryDerString.length; i++) binaryDer[i] = binaryDerString.charCodeAt(i);
@@ -28,7 +22,6 @@ export async function wrapKeyForServer(aesKey: CryptoKey) {
     ["wrapKey"]
   );
   
-  // Wrap AES Key
   const wrapped = await window.crypto.subtle.wrapKey(
     "raw",
     aesKey,
@@ -39,7 +32,6 @@ export async function wrapKeyForServer(aesKey: CryptoKey) {
   return window.btoa(String.fromCharCode(...new Uint8Array(wrapped)));
 }
 
-// 3. ENCRYPT NOTE
 export async function encryptNote(text: string, aesKey: CryptoKey) {
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
   const encoded = new TextEncoder().encode(text);
@@ -57,7 +49,6 @@ export async function encryptNote(text: string, aesKey: CryptoKey) {
   return window.btoa(String.fromCharCode(...buffer));
 }
 
-// 4. DECRYPT NOTE
 export async function decryptNote(base64: string, aesKey: CryptoKey) {
   try {
     const data = Uint8Array.from(window.atob(base64), c => c.charCodeAt(0));
@@ -72,6 +63,6 @@ export async function decryptNote(base64: string, aesKey: CryptoKey) {
     
     return new TextDecoder().decode(decrypted);
   } catch (e) {
-    return "⛔ Locked Note";
+    return "Locked Note";
   }
 }
