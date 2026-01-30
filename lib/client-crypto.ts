@@ -1,0 +1,77 @@
+// lib/client-crypto.ts
+
+// 1. GENERATE SYMMETRIC KEY (AES-GCM 256)
+export async function generateNotebookKey() {
+  return window.crypto.subtle.generateKey(
+    { name: "AES-GCM", length: 256 },
+    true,
+    ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
+  );
+}
+
+// 2. WRAP KEY (Hybrid Exchange)
+export async function wrapKeyForServer(aesKey: CryptoKey) {
+  // Read Key from Env (Client Side)
+  const pem = process.env.NEXT_PUBLIC_HQ_PUBLIC_KEY;
+  if (!pem) throw new Error("HQ Public Key not found in Environment");
+
+  // Import RSA Key
+  const binaryDerString = window.atob(pem.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, "").replace(/\s/g, ""));
+  const binaryDer = new Uint8Array(binaryDerString.length);
+  for (let i = 0; i < binaryDerString.length; i++) binaryDer[i] = binaryDerString.charCodeAt(i);
+  
+  const serverKey = await window.crypto.subtle.importKey(
+    "spki",
+    binaryDer.buffer,
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    true,
+    ["wrapKey"]
+  );
+  
+  // Wrap AES Key
+  const wrapped = await window.crypto.subtle.wrapKey(
+    "raw",
+    aesKey,
+    serverKey,
+    { name: "RSA-OAEP" }
+  );
+  
+  return window.btoa(String.fromCharCode(...new Uint8Array(wrapped)));
+}
+
+// 3. ENCRYPT NOTE
+export async function encryptNote(text: string, aesKey: CryptoKey) {
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const encoded = new TextEncoder().encode(text);
+  
+  const encrypted = await window.crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: iv },
+    aesKey,
+    encoded
+  );
+  
+  const buffer = new Uint8Array(iv.byteLength + encrypted.byteLength);
+  buffer.set(iv, 0);
+  buffer.set(new Uint8Array(encrypted), iv.byteLength);
+  
+  return window.btoa(String.fromCharCode(...buffer));
+}
+
+// 4. DECRYPT NOTE
+export async function decryptNote(base64: string, aesKey: CryptoKey) {
+  try {
+    const data = Uint8Array.from(window.atob(base64), c => c.charCodeAt(0));
+    const iv = data.slice(0, 12);
+    const ciphertext = data.slice(12);
+    
+    const decrypted = await window.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
+      aesKey,
+      ciphertext
+    );
+    
+    return new TextDecoder().decode(decrypted);
+  } catch (e) {
+    return "⛔ Locked Note";
+  }
+}
