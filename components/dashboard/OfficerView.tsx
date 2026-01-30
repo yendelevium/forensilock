@@ -1,7 +1,7 @@
 'use client';
 import { useActionState, useEffect, useState } from 'react';
 import { submitEvidence, getEvidence } from '@/actions/evidence-actions';
-import { Shield, Save, FolderOpen, PlusCircle, Camera, UploadCloud, ImageIcon } from 'lucide-react';
+import { Shield, Save, FolderOpen, PlusCircle, Camera, UploadCloud, ImageIcon, Tag } from 'lucide-react';
 import NotesList from './NotesList'; 
 
 export default function OfficerView() {
@@ -24,7 +24,7 @@ export default function OfficerView() {
   }, [state]);
 
   return (
-    <div className="max-w-5xl mx-auto"> {/* Width increased for side-by-side view */}
+    <div className="max-w-5xl mx-auto">
       
       {/* TABS */}
       <div className="flex gap-4 mb-6 border-b border-white/5 pb-1">
@@ -56,6 +56,33 @@ export default function OfficerView() {
           </div>
 
           <form action={formAction} className="space-y-6">
+            
+            {/* EVIDENCE TYPE SELECTOR (DARK MODE) */}
+            <div className="space-y-2">
+               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-2">
+                  <Tag size={12} /> Evidence Classification
+               </label>
+               <div className="relative">
+                 <select 
+                   name="category" 
+                   defaultValue="general"
+                   className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-4 text-slate-200 focus:border-cyan-500/50 outline-none font-mono text-sm cursor-pointer hover:bg-slate-900/80 transition-colors appearance-none"
+                 >
+                    {/* Added styling to options for consistent dark mode across browsers */}
+                    <option value="general" className="bg-slate-900 text-slate-200">General / Miscellaneous</option>
+                    <option value="physical" className="bg-slate-900 text-slate-200">Physical (Weapon, Item, Hardware)</option>
+                    <option value="digital" className="bg-slate-900 text-slate-200">Digital (Hard Drive, USB, Phone)</option>
+                    <option value="biological" className="bg-slate-900 text-slate-200">Biological (DNA, Sample, Organic)</option>
+                    <option value="document" className="bg-slate-900 text-slate-200">Document / Paper Trail</option>
+                 </select>
+                 
+                 {/* Custom Chevron Arrow */}
+                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                 </div>
+               </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Description</label>
               <textarea 
@@ -102,7 +129,7 @@ export default function OfficerView() {
         </div>
       )}
 
-      {/* TAB 2: CASES LIST (SIDE BY SIDE LAYOUT) */}
+      {/* TAB 2: CASES LIST */}
       {activeTab === 'cases' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
            <div className="max-h-[700px] overflow-y-auto space-y-6 pr-2 custom-scrollbar">
@@ -114,7 +141,15 @@ export default function OfficerView() {
                   <div className="p-4 border-b border-white/5 bg-black/20 flex justify-between items-center">
                      <div className="flex items-center gap-3">
                         <span className="font-mono text-xs text-slate-400">#{e.id}</span>
-                        <span className="text-[10px] text-indigo-300 font-bold uppercase bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">{e.category}</span>
+                        {/* Display Category Badge */}
+                        <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded border ${
+                            e.category === 'biological' ? 'text-red-300 bg-red-500/10 border-red-500/20' :
+                            e.category === 'digital' ? 'text-cyan-300 bg-cyan-500/10 border-cyan-500/20' :
+                            e.category === 'physical' ? 'text-amber-300 bg-amber-500/10 border-amber-500/20' :
+                            'text-indigo-300 bg-indigo-500/10 border-indigo-500/20'
+                        }`}>
+                            {e.category}
+                        </span>
                      </div>
                      <span className="text-[10px] text-slate-500 font-mono">{new Date(e.timestamp).toLocaleDateString()}</span>
                   </div>
@@ -133,7 +168,6 @@ export default function OfficerView() {
                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
                                   <ImageIcon size={12} /> Visual Attachment
                                </h4>
-                               {/* SCROLLABLE IMAGE CONTAINER */}
                                <div className="rounded-xl overflow-y-auto max-h-[300px] border border-white/10 relative group bg-black/50 custom-scrollbar">
                                   <img src={e.imageUrl} alt="Evidence" className="w-full h-auto object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                   <div className="sticky bottom-0 left-0 right-0 bg-black/80 p-2 text-[10px] text-white backdrop-blur-sm border-t border-white/10">
