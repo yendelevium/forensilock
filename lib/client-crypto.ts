@@ -7,8 +7,8 @@ export async function generateNotebookKey() {
 }
 
 export async function wrapKeyForServer(aesKey: CryptoKey) {
-  const pem = process.env.NEXT_PUBLIC_HQ_PUBLIC_KEY;
-  if (!pem) throw new Error("HQ Public Key not found in Environment");
+  const pem = process.env.NEXT_PUBLIC_PUBLIC_KEY;
+  if (!pem) throw new Error("Public Key not found in Environment");
 
   const binaryDerString = window.atob(pem.replace(/-----(BEGIN|END) PUBLIC KEY-----/g, "").replace(/\s/g, ""));
   const binaryDer = new Uint8Array(binaryDerString.length);
@@ -65,4 +65,19 @@ export async function decryptNote(base64: string, aesKey: CryptoKey) {
   } catch (e) {
     return "Locked Note";
   }
+}
+
+// NEW: Import the Raw Key recovered from Server
+export async function importNotebookKey(rawKeyBase64: string) {
+  const binaryString = window.atob(rawKeyBase64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+
+  return window.crypto.subtle.importKey(
+    "raw",
+    bytes,
+    { name: "AES-GCM" },
+    true,
+    ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
+  );
 }

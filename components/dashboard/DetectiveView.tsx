@@ -1,7 +1,7 @@
 'use client';
 import { getEvidence } from '@/actions/evidence-actions';
-import { saveEscrowKey, savePrivateNote, getPrivateNotes } from '@/actions/note-actions';
-import { generateNotebookKey, wrapKeyForServer, encryptNote, decryptNote } from '@/lib/client-crypto';
+import { saveEscrowKey, savePrivateNote, getPrivateNotes, recoverNotebookKey } from '@/actions/note-actions';
+import { generateNotebookKey, wrapKeyForServer, encryptNote, decryptNote, importNotebookKey } from '@/lib/client-crypto';
 import { RefreshCw, AlertOctagon, FileWarning, ImageIcon, Lock, Shield, Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import NotesList from './NotesList';
@@ -19,40 +19,74 @@ export default function DetectiveView() {
 
   const currentUser = "detective_holmes"; 
 
+  // 1. SETUP CRYPTO (ON MOUNT)
   useEffect(() => {
     const setupCrypto = async () => {
       try {
-         const key = await generateNotebookKey();
-         setNotebookKey(key);
-         const wrappedKeyBlob = await wrapKeyForServer(key);
-         await saveEscrowKey(wrappedKeyBlob);
-         setKeyStatus('AES-256 Active • RSA Escrowed');
+         // Attempt Recovery First
+         const recovery = await recoverNotebookKey();
+         
+         if (recovery.success && recovery.key) {
+             console.log("Key Recovered from HQ Escrow");
+             const key = await importNotebookKey(recovery.key);
+             setNotebookKey(key);
+             setKeyStatus('AES-256 Restored via RSA Exchange');
+         } else {
+             // Generate New if no backup exists
+             console.log("Generating New Key Pair");
+             const key = await generateNotebookKey();
+             setNotebookKey(key);
+             
+             const wrappedKeyBlob = await wrapKeyForServer(key);
+             await saveEscrowKey(wrappedKeyBlob);
+             setKeyStatus('AES-256 Active • RSA Escrowed');
+         }
       } catch (e) {
          console.error(e);
-         setKeyStatus('Crypto Error: Check Environment Keys');
+         setKeyStatus('Crypto Error: Check Keys');
       }
     };
     setupCrypto();
   }, []);
 
+  // 2. LOAD DATA (Refreshes Data & Checks for Key)
   const load = async () => {
     setLoading(true);
+    
+    // A. Load Evidence
     const rows = await getEvidence();
     setData(rows);
     
+    // B. Load Notes
     const pNotes = await getPrivateNotes();
     setPrivateNotes(pNotes);
     
-    if (notebookKey) {
+    // C. KEY RECOVERY ON REFRESH (Your Request)
+    // If the key was lost (e.g. page refresh cleared state but component remounted), try getting it back
+    let activeKey = notebookKey;
+    if (!activeKey) {
+        const recovery = await recoverNotebookKey();
+        if (recovery.success && recovery.key) {
+            activeKey = await importNotebookKey(recovery.key);
+            setNotebookKey(activeKey);
+            setKeyStatus('AES-256 Restored');
+        }
+    }
+    
+    // D. Decrypt Notes using the key (current or just recovered)
+    if (activeKey) {
+        // We use 'activeKey' local var to ensure we don't wait for state update
         pNotes.forEach(async (n: any) => {
-            const text = await decryptNote(n.content_enc, notebookKey);
+            const text = await decryptNote(n.content_enc, activeKey);
             setDecryptedNoteContent(prev => ({...prev, [n.id]: text}));
         });
     }
+    
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [notebookKey]);
+  // Initial load when key is ready
+  useEffect(() => { if (notebookKey) load(); }, [notebookKey]);
 
   const handleSaveNote = async () => {
      if (!newNote || !notebookKey) return;
@@ -92,7 +126,7 @@ export default function DetectiveView() {
 
             return (
               <div key={e.id} className={`backdrop-blur-md rounded-2xl border overflow-hidden shadow-lg transition-all ${isTotalCorruption ? 'bg-red-950/20 border-red-500/50' : 'bg-slate-900/40 border-white/5'}`}>
-                {/* ... (Keep existing Evidence Card UI) ... */}
+                
                 <div className={`p-4 border-b flex justify-between items-center ${isTotalCorruption ? 'bg-red-500/10 border-red-500/20' : 'bg-black/20 border-white/5'}`}>
                   <span className={`font-mono text-xs ${isTotalCorruption ? 'text-red-400' : 'text-slate-500'}`}>Case ID #{e.id}</span>
                   {isTotalCorruption ? (
