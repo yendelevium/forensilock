@@ -4,7 +4,7 @@ Project for the course 23CSE313 - Foundations of Cyber Security for Lab Evaluati
 
 ## Project Overview
 
-**ForensiLock** is a secure, role-based Digital Evidence Management System designed for forensic artifacts. The application ensures that digital evidence collected by officers is stored immutably, accessed only by authorized detectives, and audited by Internal Affairs for integrity.
+**ForensiLock** is a secure, role-based Digital Evidence System designed for forensic artifacts. The application ensures that digital evidence collected by officers is stored immutably, accessed only by authorized detectives, and audited by Internal Affairs for integrity.
 
 This project was developed to demonstrate practical implementation of core security concepts: Authentication, Authorization (Access Control), Encryption, Hashing, and Encoding.
 
