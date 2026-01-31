@@ -20,10 +20,11 @@ This application implements all required security components as defined in the e
 
 ### 2\. Authorization & Access Control (RBAC)
 - **Access Control Matrix:**
- - **Subjects (Roles):**
- - **Officer:** Can WRITE (upload) evidence, ENCRYPT data, and view their _own_ submitted cases (Read-Only).
- - **Detective:** Can READ (view) all evidence, DECRYPT data, and WRITE notes (for a specific evidence or private notes).
- - **Internal Affairs (IA):** Can AUDIT (scan hashes) and VIEW access logs. Cannot view raw decrypted evidence content.
+- **Subjects (Roles):**
+    - **Officer:** Can WRITE (upload) evidence, ENCRYPT data, and view their _own_ submitted cases (Read-Only).
+    - **Detective:** Can READ (view) all evidence, DECRYPT data, and WRITE notes (for a specific evidence or private notes).
+    - **Internal Affairs (IA):** Can AUDIT (scan hashes) and VIEW access logs. Cannot view raw decrypted evidence content.
+- **Objects:** Evidence, notes on evidence, private notes, logs and evidence hashes. 
 - **Enforcement:** Server Actions verify the session role before executing any database query. Next.js Middleware protects route access.
 
 ### 3\. Encryption & Decryption (AES-256-CBC)
@@ -35,18 +36,19 @@ This application implements all required security components as defined in the e
 ### 4\. Secure Key Exchange (Hybrid Cryptosystem)
 - **Feature:** Private Notebook for Detectives.
 - **Mechanism:**
- - **Symmetric:** The client generates an **AES-GCM-256** key in the browser.
- - **Asymmetric:** This AES key is wrapped (encrypted) using the **Server's RSA Public Key** (loaded from .env).
- - **Exchange:** The wrapped key is sent to the database.
+    - **Symmetric:** The client generates an **AES-GCM-256** key in the browser.
+    - **Asymmetric:** This AES key is wrapped (encrypted) using the **Server's RSA Public Key** (loaded from .env).
+    - **Exchange:** The wrapped key is sent to the database.
  - **Result:** The server stores the key but cannot use it without the Private Key (which is protected via environment variables).
 
 ### 5\. Data Integrity & Tamper Detection (Hashing)
 - **Hashing & Salting:** Using `bcrypt` to hash and salt to store passwords.
 - **Chain of Custody:** Upon submission, a **SHA-256** hash is generated combining the _Encrypted Description + Category + Encrypted Image_.
-- **The Audit Scan:** The Internal Affairs dashboard allows a re-calculation of these hashes. If the current database state does not match the stored hash, the record is flagged as **TAMPERED** in the UI.
+- **Digital Signature for data integrity:** The Internal Affairs dashboard allows a re-calculation of these hashes. If the current database state does not match the stored hash, the record is flagged as **TAMPERED** in the UI.
 
 ### 6\. Encoding
 - Binary image data is converted to **Base64** strings before being encrypted and stored. This ensures safe handling of binary blobs within the JSON/text-based database fields.
+- The JWT payload is also encoded in **Base64**
 
 
 ## Tech Stack
