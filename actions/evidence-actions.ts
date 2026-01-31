@@ -75,7 +75,6 @@ export async function getEvidence() {
 
      if (row.image_enc) {
         const decryptedBlob = decrypt(row.image_enc, row.image_iv);
-        // UPDATED CHECK: No emoji
         if (decryptedBlob.startsWith('DECRYPTION_FAILURE')) {
            isImageCorrupted = true;
         } else {

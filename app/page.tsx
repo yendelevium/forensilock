@@ -22,10 +22,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black flex items-center justify-center p-6 text-slate-200">
       
-      {/* Glow Effect behind card */}
       <div className="absolute w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
-
-      {/* Main Card - Exact matches to Register Page dimensions and borders */}
       <div className="w-full max-w-[420px] bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden ring-1 ring-white/5">
         
         <div className="p-8">
@@ -38,7 +35,6 @@ export default function LoginPage() {
           </div>
 
           {!state?.mfaRequired ? (
-            /* --- STATE 1: CREDENTIALS --- */
             <form action={formAction} className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="space-y-3">
                 <div className="relative group">
@@ -80,7 +76,6 @@ export default function LoginPage() {
               )}
             </form>
           ) : (
-            /* --- STATE 2: MFA --- */
             <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
               <div className="text-center">
                  <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mx-auto mb-4 animate-pulse">

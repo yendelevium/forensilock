@@ -50,7 +50,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS private_notes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     owner TEXT,
-    content_enc TEXT, -- Encrypted with the User's AES Key
+    content_enc TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);

@@ -77,7 +77,6 @@ export default function IAView() {
                     <td className="p-5 font-mono text-slate-500 group-hover:text-slate-300 transition-colors align-top">#{log.id}</td>
                     <td className="p-5">
                         {log.status === 'SECURE' ? (
-                           /* SECURE VIEW */
                            <div className="space-y-1">
                               <span className="text-[10px] text-emerald-500/50 font-bold uppercase tracking-widest block">Stored & Verified Match</span>
                               <div className="font-mono text-xs text-cyan-300/80 bg-black/40 px-3 py-2 rounded border border-white/5 break-all">
@@ -85,7 +84,6 @@ export default function IAView() {
                               </div>
                            </div>
                         ) : (
-                           /* TAMPERED VIEW */
                            <div className="space-y-3">
                               <div>
                                 <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest block mb-1">Expected (Stored)</span>
@@ -101,7 +99,6 @@ export default function IAView() {
                               <div>
                                  <span className="text-[10px] text-red-500 font-bold uppercase tracking-widest block mb-1">Actual (Calculated)</span>
                                  <div className="font-mono text-xs text-red-400 bg-red-900/20 px-3 py-2 rounded border border-red-500/20 break-all select-all shadow-[0_0_10px_rgba(239,68,68,0.1)]">
-                                     {/* ⚠️ FIX: Changed from 'calculatedHash' to 'currentHash' to match backend */}
                                      {log.currentHash}
                                  </div>
                               </div>

@@ -22,8 +22,6 @@ export default async function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-200 selection:bg-cyan-500/30">
-      
-      {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 bg-slate-950/70 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex justify-between items-center shadow-2xl">
         <div className="flex items-center gap-4">
           <div className={`p-2.5 rounded-xl bg-slate-900/50 border ${theme.border} shadow-[0_0_15px_-3px_rgba(0,0,0,0.1)]`}>
@@ -57,7 +55,6 @@ export default async function Dashboard() {
         </div>
       </nav>
 
-      {/* Main Content Area */}
       <main className="pt-32 pb-12 px-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
         {userRole === 'officer' && <OfficerView />}
         {userRole === 'detective' && <DetectiveView />}

@@ -12,18 +12,16 @@ export default function DetectiveView() {
   const [loading, setLoading] = useState(false);
   
   const [notebookKey, setNotebookKey] = useState<CryptoKey | null>(null);
-  const [keyStatus, setKeyStatus] = useState('Initializing Secure Enclave...');
+  const [keyStatus, setKeyStatus] = useState('Initializing Secure Private Notes...');
   const [privateNotes, setPrivateNotes] = useState<any[]>([]);
   const [newNote, setNewNote] = useState('');
   const [decryptedNoteContent, setDecryptedNoteContent] = useState<Record<number, string>>({});
 
   const currentUser = "detective_holmes"; 
 
-  // 1. SETUP CRYPTO (ON MOUNT)
   useEffect(() => {
     const setupCrypto = async () => {
       try {
-         // Attempt Recovery First
          const recovery = await recoverNotebookKey();
          
          if (recovery.success && recovery.key) {
@@ -49,20 +47,15 @@ export default function DetectiveView() {
     setupCrypto();
   }, []);
 
-  // 2. LOAD DATA (Refreshes Data & Checks for Key)
   const load = async () => {
     setLoading(true);
     
-    // A. Load Evidence
     const rows = await getEvidence();
     setData(rows);
     
-    // B. Load Notes
     const pNotes = await getPrivateNotes();
     setPrivateNotes(pNotes);
     
-    // C. KEY RECOVERY ON REFRESH (Your Request)
-    // If the key was lost (e.g. page refresh cleared state but component remounted), try getting it back
     let activeKey = notebookKey;
     if (!activeKey) {
         const recovery = await recoverNotebookKey();
@@ -73,9 +66,7 @@ export default function DetectiveView() {
         }
     }
     
-    // D. Decrypt Notes using the key (current or just recovered)
     if (activeKey) {
-        // We use 'activeKey' local var to ensure we don't wait for state update
         pNotes.forEach(async (n: any) => {
             const text = await decryptNote(n.content_enc, activeKey);
             setDecryptedNoteContent(prev => ({...prev, [n.id]: text}));
@@ -178,7 +169,7 @@ export default function DetectiveView() {
                <div className="flex items-center gap-3 mb-4">
                   <div className="bg-purple-500/10 p-2 rounded-lg"><Shield size={20} className="text-purple-500"/></div>
                   <div>
-                    <h3 className="font-bold text-white text-sm">Secure Enclave</h3>
+                    <h3 className="font-bold text-white text-sm">Secure Private Notes</h3>
                     <p className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">{keyStatus}</p>
                   </div>
                </div>

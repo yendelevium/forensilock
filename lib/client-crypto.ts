@@ -67,7 +67,6 @@ export async function decryptNote(base64: string, aesKey: CryptoKey) {
   }
 }
 
-// NEW: Import the Raw Key recovered from Server
 export async function importNotebookKey(rawKeyBase64: string) {
   const binaryString = window.atob(rawKeyBase64);
   const bytes = new Uint8Array(binaryString.length);

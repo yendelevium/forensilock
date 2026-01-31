@@ -3,7 +3,7 @@
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
-import crypto from 'crypto'; // Node.js Crypto for Server-Side Decryption
+import crypto from 'crypto';
 
 export async function saveEscrowKey(encryptedKeyBlob: string) {
   const session = await getSession();
@@ -34,12 +34,9 @@ export async function getPrivateNotes() {
     .all(session.username) as any[];
 }
 
-// NEW: RECOVER KEY (Server-Side Decryption using HQ_PRIVATE_KEY)
 export async function recoverNotebookKey() {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
-
-  // 1. Get the Encrypted Blob from DB
   const user = db.prepare('SELECT encrypted_notebook_key FROM users WHERE username = ?')
     .get(session.username) as any;
 
@@ -48,13 +45,10 @@ export async function recoverNotebookKey() {
   }
 
   try {
-    // 2. Load Server Private Key from Env
     const privateKeyPem = process.env.PRIVATE_KEY;
     if (!privateKeyPem) throw new Error("Server Private Key missing");
 
-    // 3. DECRYPT using RSA-OAEP (Server Side)
     const encryptedBuffer = Buffer.from(user.encrypted_notebook_key, 'base64');
-
     const decryptedBuffer = crypto.privateDecrypt(
       {
         key: privateKeyPem,
@@ -64,7 +58,6 @@ export async function recoverNotebookKey() {
       encryptedBuffer
     );
 
-    // 4. Return the Raw AES Key (Base64) to the Client
     return { success: true, key: decryptedBuffer.toString('base64') };
 
   } catch (error) {
